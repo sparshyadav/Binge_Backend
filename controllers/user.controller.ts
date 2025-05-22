@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import User from '../models/user.model';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
@@ -70,4 +70,5 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         return res.status(500).json({ message: 'Login Failed', error });
     }
 }
+
 
