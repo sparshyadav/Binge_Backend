@@ -11,18 +11,22 @@ const userSchema = new Schema({
         required: true,
         unique: true,
         lowercase: true,
+        trim: true
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false,
+        trim: true
     },
     phoneNumber: {
-        type: String
+        type: String,
+        trim: true
     },
     role: {
         type: String,
         enum: ['admin', 'user'],
-        default: 'user'
+        trim: true
     },
     watchlist: [
         {
@@ -31,5 +35,12 @@ const userSchema = new Schema({
         }
     ]
 }, { timestamps: true });
+
+userSchema.pre('save', function (next) {
+    if (!this.role || this.role !== 'admin') {
+        this.role = 'user';
+    }
+    next();
+});
 
 export default mongoose.model('User', userSchema);
