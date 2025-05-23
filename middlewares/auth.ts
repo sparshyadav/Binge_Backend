@@ -6,7 +6,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecretkey';
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
-        return res.status(401).json({ message: 'Access Denied, Token not Found' });
+        res.status(401).json({ message: 'Access Denied, Token not Found' });
+        return;
     }
 
     try {
@@ -15,18 +16,23 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         next();
     }
     catch {
-        return res.status(401).json({ message: 'Invalid Token' });
+        res.status(401).json({ message: 'Invalid Token' });
+        return;
     }
 }
 
-export const requireRole = (role: 'admin' | 'user') => {
-    return (req: Request, res: Response, next: NextFunction) => {
-        const user = (req as any).user;
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+    const user = (req as any).user;
 
-        if (user.role !== role) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-
-        next();
+    if (!user) {
+        res.status(401).json({ message: 'Unauthorized: User not authenticated' });
+        return;
     }
-}
+
+    if (user.role !== 'admin') {
+        res.status(403).json({ message: 'Forbidden: Admins only' });
+        return;
+    }
+
+    next();
+};

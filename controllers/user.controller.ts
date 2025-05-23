@@ -3,6 +3,9 @@ import User from '../models/user.model';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecretkey';
 
@@ -50,12 +53,12 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
 export const login = async (req: Request, res: Response): Promise<any> => {
     try {
         const { email, password } = req.body;
-
+        
         const user = await User.findOne({ email }).select('+password');;
         if (!user) {
             return res.status(400).json({ message: 'Invalid Credentials' });
         }
-
+        
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid Credentials' });
